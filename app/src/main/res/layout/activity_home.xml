@@ -16,7 +16,17 @@
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
             android:cropToPadding="false"
-            android:src="@drawable/WGU_Logo" />
+            android:src="@drawable/wgu_logo" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:id="@+id/dataRootView">
+
+
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"

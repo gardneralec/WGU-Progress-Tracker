@@ -20,7 +20,12 @@ public class DBContract {
                 COLUMN_NUMBER + " INTEGER, " +
                 COLUMN_START + " INTEGER, " +
                 COLUMN_END + " INTEGER" +
-                COLUMN_STATUS + "INTEGER" + ")";
+                COLUMN_STATUS + "TEXT" + ")";
+
+        public static final String SAMPLE_DATA = "INSERT INTO Term (Term_Number, Start, End, Status) " +
+                                                 "VALUES(1, 1514764800, 1517443200, 'IP');" +
+                                                 "INSERT INTO Term (Term_Number, Start, End, Status) " +
+                                                 "VALUES(2, 1517443200, 1519862400, 'IP');";
     }
 
     public static class CourseTable implements BaseColumns {

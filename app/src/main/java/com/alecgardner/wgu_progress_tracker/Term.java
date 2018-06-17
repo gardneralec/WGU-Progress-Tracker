@@ -8,5 +8,5 @@ public class Term {
     public final ObservableField<Long> termStart = new ObservableField<>();
     public final ObservableField<Long> termEnd = new ObservableField<>();
     public final ObservableArrayList<Course> associatedCourses = new ObservableArrayList();
-    public final ObservableField<Integer> termStatus = new ObservableField<>();
+    public final ObservableField<String> termStatus = new ObservableField<>();
 }
