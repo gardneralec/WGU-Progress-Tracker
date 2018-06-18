@@ -19,13 +19,15 @@ public class DBContract {
                 _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_NUMBER + " INTEGER, " +
                 COLUMN_START + " INTEGER, " +
-                COLUMN_END + " INTEGER" +
-                COLUMN_STATUS + "TEXT" + ")";
+                COLUMN_END + " INTEGER, " +
+                COLUMN_STATUS + " TEXT" + ")";
 
-        public static final String SAMPLE_DATA = "INSERT INTO Term (Term_Number, Start, End, Status) " +
-                                                 "VALUES(1, 1514764800, 1517443200, 'IP');" +
-                                                 "INSERT INTO Term (Term_Number, Start, End, Status) " +
-                                                 "VALUES(2, 1517443200, 1519862400, 'IP');";
+        public static final String SAMPLE_DATA_1 = "INSERT INTO Term (Term_Number, Start, End, Status) " +
+                                                 "VALUES(1, 1514764800, 1517443200, 'IP')";
+
+        public static final String SAMPLE_DATA_2 = "INSERT INTO Term (Term_Number, Start, End, Status) " +
+                                                   "VALUES(2, 1517443200, 1519862400, 'IP');";
+
     }
 
     public static class CourseTable implements BaseColumns {
