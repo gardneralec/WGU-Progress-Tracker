@@ -4,5 +4,17 @@
     <string name="term1Start">01/01/18</string>
     <string name="term1End">02/01/18</string>
     <string name="maximize">+</string>
+    <string name="addTerm">Add Term</string>
+    <string name="title">Title</string>
+    <string name="status">Status</string>
+    <string name="start">Start</string>
+    <string name="end">End</string>
+    <string name="cancel">Cancel</string>
+    <string name="submit">Submit</string>
+    
+    <string-array name="termStatus">
+        <item>In-Progress</item>
+        <item>Complete</item>
+    </string-array>
 
 </resources>

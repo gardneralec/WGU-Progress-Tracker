@@ -1,5 +1,7 @@
 package com.alecgardner.wgu_progress_tracker;
 
+import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
@@ -312,7 +314,7 @@ public class HomeActivity extends AppCompatActivity {
             termChildren.addView(courseDescriptorRow);
 
             // Add courses underneath term row created above
-            for(Course course:term.associatedCourses) {
+            for(Course course:term.associatedCourses) { // Create course rows
                 LinearLayout courseRowRoot = new LinearLayout(this); // root view for course row and associated assessments
                 courseRowRoot.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                 courseRowRoot.setOrientation(LinearLayout.VERTICAL);
@@ -323,7 +325,7 @@ public class HomeActivity extends AppCompatActivity {
                 courseChildren.setOrientation(LinearLayout.VERTICAL);
                 courseChildren.setVisibility(View.GONE);
 
-                LinearLayout courseRow = new LinearLayout(this); // root view for items within course row
+                LinearLayout courseRow = new LinearLayout(this); // root view for information about course
                 courseRow.setOrientation(LinearLayout.HORIZONTAL);
                 LinearLayout.LayoutParams courseRowLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                 courseRowLP.setMargins(0, 0, 0, convertToDP(1));
@@ -405,15 +407,15 @@ public class HomeActivity extends AppCompatActivity {
                 assessmentDescriptorText.setTextSize(18);
                 assessmentDescriptorRow.addView(assessmentDescriptorText);
 
-                courseChildren.addView(assessmentDescriptorRow);
+                courseChildren.addView(assessmentDescriptorRow); // Add assessment descriptor row to top of assessment holder
 
                 // Add assessments underneath each course created above
-                for(Assessment assessment:course.associatedAssessments) {
+                for(Assessment assessment:course.associatedAssessments) { // Create assessment rows
                     LinearLayout assessmentRowRoot = new LinearLayout(this); // root view for assessment row and associated assessments
                     assessmentRowRoot.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                     assessmentRowRoot.setOrientation(LinearLayout.VERTICAL);
 
-                    LinearLayout assessmentRow = new LinearLayout(this); // root view for items within assessment row
+                    LinearLayout assessmentRow = new LinearLayout(this); // root view for information about assessment
                     assessmentRow.setOrientation(LinearLayout.HORIZONTAL);
                     LinearLayout.LayoutParams assessmentRowLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                     assessmentRowLP.setMargins(0, 0, 0, convertToDP(1));
@@ -462,26 +464,92 @@ public class HomeActivity extends AppCompatActivity {
                     assessmentExpand.setTextSize(24);
                     assessmentRow.addView(assessmentExpand);
 
-                    assessmentRowRoot.addView(assessmentRow);
+                    assessmentRowRoot.addView(assessmentRow); // Adds assessment information row to main assessment root view
 
-                    courseChildren.addView(assessmentRowRoot);
-                }   
-                courseRowRoot.addView(courseChildren);
-                termChildren.addView(courseRowRoot);
+                    courseChildren.addView(assessmentRowRoot); //  Adds assessment root view to course's assessment holder
+                } // End create assessment rows
+
+                final LinearLayout addAssessmentRow = new LinearLayout(this); // view to display add assessment row for each course
+                addAssessmentRow.setOrientation(LinearLayout.HORIZONTAL);
+                LinearLayout.LayoutParams addAssessmentRowLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                addAssessmentRowLP.setMargins(0, 0, 0, convertToDP(1));
+                addAssessmentRow.setLayoutParams(addAssessmentRowLP);
+                addAssessmentRow.setPadding(convertToDP(16), convertToDP(16), convertToDP(16), convertToDP(16));
+                addAssessmentRow.setBackgroundColor(getResources().getColor(R.color.tan));
+
+                TextView addAssessmentRowText = new TextView(this);
+                addAssessmentRowText.setLayoutParams(wrapContentLP1);
+                addAssessmentRowText.setTextColor(getResources().getColor(R.color.textDark));
+                addAssessmentRowText.setGravity(Gravity.CENTER);
+                String addAssessmentRowTextContent = "+  Add New Assessment For " + course.courseTitle.get() + "  +";
+                addAssessmentRowText.setText(addAssessmentRowTextContent);
+                addAssessmentRowText.setTextSize(18);
+                addAssessmentRow.addView(addAssessmentRowText);
+
+                courseChildren.addView(addAssessmentRow); // Attach add assessment row to the end of this course's assessment list
+
+                courseRowRoot.addView(courseChildren); // Adds assessment list to main course root view
+
+                termChildren.addView(courseRowRoot); // Add course information and assessment list to term's course holder
 
 
+            } // End create course rows
+
+            final LinearLayout addCourseRow = new LinearLayout(this); // view to display add course row for each term
+            addCourseRow.setOrientation(LinearLayout.HORIZONTAL);
+            LinearLayout.LayoutParams addCourseRowLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            addCourseRowLP.setMargins(0, 0, 0, convertToDP(1));
+            addCourseRow.setLayoutParams(addCourseRowLP);
+            addCourseRow.setPadding(convertToDP(16), convertToDP(16), convertToDP(16), convertToDP(16));
+            addCourseRow.setBackgroundColor(getResources().getColor(R.color.tan));
+
+            TextView addCourseRowText = new TextView(this);
+            addCourseRowText.setLayoutParams(wrapContentLP1);
+            addCourseRowText.setTextColor(getResources().getColor(R.color.textDark));
+            addCourseRowText.setGravity(Gravity.CENTER);
+            String addCourseRowTextContent = "+  Add New Course For Term " + term.termNumber.get() + "  +";
+            addCourseRowText.setText(addCourseRowTextContent);
+            addCourseRowText.setTextSize(18);
+            addCourseRow.addView(addCourseRowText);
+
+            termChildren.addView(addCourseRow); // Attach add course row to the end of this term's course list
+
+            termRowRoot.addView(termChildren); // Adds course list to main term root view
+
+            termRoot.addView(termRowRoot); // Add term information and course list to main term holder
+
+        } // End create term rows
+
+        final LinearLayout addTermRow = new LinearLayout(this); // view to display add term to bottom of term list
+        addTermRow.setOrientation(LinearLayout.HORIZONTAL);
+        LinearLayout.LayoutParams addTermRowLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        addTermRowLP.setMargins(0, 0, 0, convertToDP(1));
+        addTermRow.setLayoutParams(addTermRowLP);
+        addTermRow.setPadding(convertToDP(16), convertToDP(16), convertToDP(16), convertToDP(16));
+        addTermRow.setBackgroundColor(getResources().getColor(R.color.tan));
+        addTermRow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), AddTermActivity.class);
+                startActivity(intent);
             }
+        });
 
-            termRowRoot.addView(termChildren);
+        LinearLayout.LayoutParams wrapContentLPAddTerm = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        wrapContentLPAddTerm.weight = 1;
+        wrapContentLPAddTerm.gravity = Gravity.CENTER_VERTICAL;
 
-            termRoot.addView(termRowRoot);
+        TextView addTermRowText = new TextView(this);
+        addTermRowText.setLayoutParams(wrapContentLPAddTerm);
+        addTermRowText.setTextColor(getResources().getColor(R.color.textDark));
+        addTermRowText.setGravity(Gravity.CENTER);
+        String addTermRowTextContent = "+  Add New Term  +";
+        addTermRowText.setText(addTermRowTextContent);
+        addTermRowText.setTextSize(18);
+        addTermRow.addView(addTermRowText);
 
+        termRoot.addView(addTermRow); // Attach add term row to bottom of term list
 
-
-        }
-
-
-
-        return termRoot;
+        return termRoot; // Return root view containing all rows of terms, courses, and assessments
     }
 }
