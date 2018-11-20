@@ -1,11 +1,11 @@
 package com.alecgardner.wgu_progress_tracker;
 
-import android.databinding.ObservableArrayList;
 import android.databinding.ObservableField;
 import android.databinding.ObservableInt;
 import android.databinding.ObservableLong;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class Term {
@@ -13,7 +13,7 @@ public class Term {
     public final ObservableInt termNumber = new ObservableInt();
     public final ObservableLong termStart = new ObservableLong();
     public final ObservableLong termEnd = new ObservableLong();
-    public final ObservableArrayList<Course> associatedCourses = new ObservableArrayList();
+    public final ArrayList<Course> associatedCourses = new ArrayList<>();
     public final ObservableField<String> termStatus = new ObservableField<>();
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yy");
 

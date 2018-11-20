@@ -1,13 +1,13 @@
 package com.alecgardner.wgu_progress_tracker;
 
-import android.databinding.ObservableArrayList;
 import android.databinding.ObservableField;
 import android.databinding.ObservableInt;
 import android.databinding.ObservableLong;
-import android.graphics.Color;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 public class Course {
     public final ObservableInt courseID = new ObservableInt();
@@ -16,10 +16,9 @@ public class Course {
     public final ObservableLong courseEnd = new ObservableLong();
     public final ObservableInt courseTermID = new ObservableInt();
     public final ObservableField<String> courseStatus = new ObservableField<>();
-    public final ObservableArrayList<CourseMentor> associatedMentors = new ObservableArrayList();
-    public final ObservableArrayList<Assessment> associatedAssessments = new ObservableArrayList();
+    public final ArrayList<Assessment> associatedAssessments = new ArrayList<>();
     public final ObservableField<String> courseNotes = new ObservableField<>();
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yy");
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yy", Locale.US);
     public final ObservableInt courseHomeColor = new ObservableInt();
 
     public String convertStartToString() {

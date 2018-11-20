@@ -2,6 +2,7 @@ package com.alecgardner.wgu_progress_tracker;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -34,6 +35,7 @@ public class AddTermActivity extends AppCompatActivity {
     private String selectedTermStatus;
     private Date selectedStartDate;
     private Date selectedEndDate;
+    private Button submitTerm;
 
 
     @Override
@@ -42,7 +44,7 @@ public class AddTermActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_term);
 
         selectedTermNumber = -1;
-        selectedTermStatus = null;
+        selectedTermStatus = "In-Progress";
         selectedStartDate = null;
         selectedEndDate = null;
 
@@ -60,6 +62,7 @@ public class AddTermActivity extends AppCompatActivity {
 
 
         startText = findViewById(R.id.addTermStart);
+        startText.setKeyListener(null);
         final DatePickerDialog.OnDateSetListener startDate = new DatePickerDialog.OnDateSetListener() {
 
             @Override
@@ -93,6 +96,7 @@ public class AddTermActivity extends AppCompatActivity {
 
 
         endText = findViewById(R.id.addTermEnd);
+        endText.setKeyListener(null);
         final DatePickerDialog.OnDateSetListener endDate = new DatePickerDialog.OnDateSetListener() {
 
             @Override
@@ -108,7 +112,6 @@ public class AddTermActivity extends AppCompatActivity {
                 endCalendar.set(Calendar.MILLISECOND, 0);
                 updateLabel(endText, endCalendar);
                 selectedEndDate = endCalendar.getTime();
-                System.out.println(endCalendar.getTimeInMillis());
             }
 
         };
@@ -123,23 +126,34 @@ public class AddTermActivity extends AppCompatActivity {
                         endCalendar.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
+
+        submitTerm = findViewById(R.id.addTermSubmit);
+
+        submitTerm.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                onSubmitClickHandler(v);
+            }
+
+        });
+
     }
 
     private void updateLabel(EditText view, Calendar calendar) {
-        String myFormat = "MM/dd/yy"; //In which you need put here
+        String myFormat = "MM/dd/yy";
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
 
         view.setText(sdf.format(calendar.getTime()));
     }
 
-    public void onCancelClickHandler(View view) {
-        this.finish();
-    }
-
     public void onSubmitClickHandler(View view) {
         ArrayList<Term> termList = pullTermsFromDB();
 
-
+        if(checkFields(termList)) {
+            addTermToDB(selectedTermNumber, selectedStartDate.getTime(), selectedEndDate.getTime(), (String) statusSpinner.getSelectedItem());
+            finish();
+        }
     }
 
     public void termNumberPickerShow(View view) {
@@ -150,8 +164,8 @@ public class AddTermActivity extends AppCompatActivity {
         Button b1 = d.findViewById(R.id.button1);
         Button b2 = d.findViewById(R.id.button2);
         final NumberPicker np = d.findViewById(R.id.numberPicker1);
-        np.setMaxValue(100);
         np.setMinValue(1);
+        np.setMaxValue(10000);
         np.setWrapSelectorWheel(false);
         b1.setOnClickListener(new View.OnClickListener()
         {
@@ -237,55 +251,59 @@ public class AddTermActivity extends AppCompatActivity {
         return termNumberNotRepeated;
     }
 
-    private boolean checkStartDate(ArrayList<Term> termList) {
-        boolean termStartNoOverlap = true;
+    private boolean checkDateMismatch() {
 
         if(selectedStartDate.getTime() >= selectedEndDate.getTime()) {
-            termStartNoOverlap = false;
+            return false;
         }
 
-        for(Term term:termList) {
-            if((term.termStart.get() >= selectedStartDate.getTime()) && (term.termEnd.get() <= selectedStartDate.getTime())) {
-                termStartNoOverlap = false;
-            }
-        }
-
-        return termStartNoOverlap;
-
+        return true;
     }
 
-    private boolean checkEndDate(ArrayList<Term> termList) {
-        boolean termEndNoOverlap = true;
-
-        if(selectedStartDate.getTime() >= selectedEndDate.getTime()) {
-            termEndNoOverlap = false;
-        }
+    private boolean checkDateOverlap(ArrayList<Term> termList) {
 
         for(Term term:termList) {
-            if((term.termStart.get() >= selectedEndDate.getTime()) && (term.termEnd.get() <= selectedEndDate.getTime())) {
-                termEndNoOverlap = false;
+            if((selectedStartDate.getTime() <= term.termStart.get()) & (selectedEndDate.getTime() >= term.termEnd.get())) {
+                return false;
+            }
+
+            if((selectedStartDate.getTime() >= term.termStart.get()) && (selectedStartDate.getTime() <= term.termEnd.get())) {
+                return false;
+            }
+
+            if((selectedEndDate.getTime() >= term.termStart.get()) & (selectedEndDate.getTime() <= term.termEnd.get())) {
+                return false;
             }
         }
 
-        return termEndNoOverlap;
+        return true;
 
     }
 
     private boolean checkFields(ArrayList<Term> termList) {
         if(checkRequiredFieldsForNull()) {
             if(checkTermNumber(termList)) {
-                if(checkStartDate(termList)) {
+                if(checkDateMismatch()) {
+                    if (checkDateOverlap(termList)) {
+                        return true;
 
+                    } else {
+                        Context context = getApplicationContext();
+                        CharSequence text = "Term dates cannot overlap with an existing term";
+                        int duration = Toast.LENGTH_SHORT;
+                        Toast missingFields = Toast.makeText(context, text, duration);
+                        missingFields.show();
+                    }
                 } else {
                     Context context = getApplicationContext();
-                    CharSequence text = "Start ";
+                    CharSequence text = "Start Date cannot be after End Date";
                     int duration = Toast.LENGTH_SHORT;
                     Toast missingFields = Toast.makeText(context, text, duration);
                     missingFields.show();
                 }
             } else {
                 Context context = getApplicationContext();
-                CharSequence text = "Term Number Already Used";
+                CharSequence text = "Term number already used";
                 int duration = Toast.LENGTH_SHORT;
                 Toast missingFields = Toast.makeText(context, text, duration);
                 missingFields.show();
@@ -298,6 +316,21 @@ public class AddTermActivity extends AppCompatActivity {
             Toast missingFields = Toast.makeText(context, text, duration);
             missingFields.show();
         }
+
+        return false;
+    }
+
+    private void addTermToDB(int termNumber, long start, long end, String status) {
+
+        SQLiteDatabase database = new DBSQLiteHelper(this).getReadableDatabase();
+
+        ContentValues cv = new ContentValues();
+        cv.put(DBContract.TermTable.COLUMN_NUMBER, termNumber);
+        cv.put(DBContract.TermTable.COLUMN_STATUS, status);
+        cv.put(DBContract.TermTable.COLUMN_START, start);
+        cv.put(DBContract.TermTable.COLUMN_END, end);
+
+        database.insert("Term", null, cv);
     }
 
 }

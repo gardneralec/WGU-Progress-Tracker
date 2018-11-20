@@ -1,10 +1,13 @@
 package com.alecgardner.wgu_progress_tracker;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -14,6 +17,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class HomeActivity extends AppCompatActivity {
@@ -21,6 +25,8 @@ public class HomeActivity extends AppCompatActivity {
     private ArrayList<Course> courses;
     private ArrayList<Assessment> assessments;
     private float scale;
+    private LinearLayout mainView;
+    private LinearLayout rootView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,12 +34,11 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
         getWindow().getDecorView().setBackgroundColor(Color.WHITE);
         scale = getResources().getDisplayMetrics().density;
-        terms = new ArrayList<>();
-        courses = new ArrayList<>();
-        assessments = new ArrayList<>();
         this.generateTermsFromDB();
-        LinearLayout rootView = findViewById(R.id.rootView);
-        rootView.addView(generateRows());
+        rootView = findViewById(R.id.rootView);
+        mainView = generateRows();
+        rootView.addView(mainView);
+        createRemindersNotificationChannel();
 
     }
 
@@ -42,6 +47,11 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void generateTermsFromDB() {
+
+        ArrayList<Term> generatedTerms = new ArrayList<>();
+        ArrayList<Course> generatedCourses = new ArrayList<>();
+        ArrayList<Assessment> generatedAssessments = new ArrayList<>();
+
 
         SQLiteDatabase database = new DBSQLiteHelper(this).getReadableDatabase();
 
@@ -74,7 +84,7 @@ public class HomeActivity extends AppCompatActivity {
                 term.termStart.set(termCursor.getLong(2));
                 term.termEnd.set(termCursor.getLong(3));
                 term.termStatus.set(termCursor.getString(4));
-                terms.add(term);
+                generatedTerms.add(term);
             } while (termCursor.moveToNext());
         }
 
@@ -117,16 +127,16 @@ public class HomeActivity extends AppCompatActivity {
 
 
                 switch (course.courseStatus.get()) {
-                    case "CO":
+                    case "Complete":
                         course.courseHomeColor.set(R.color.lightGreen);
                         break;
 
-                    case "DR":
-                        course.courseHomeColor.set(R.color.lightRed);
+                    case "In-Progress":
+                        course.courseHomeColor.set(R.color.white);
                         break;
 
-                    case "IP":
-                        course.courseHomeColor.set(R.color.white);
+                    case "Dropped":
+                        course.courseHomeColor.set(R.color.lightRed);
                         break;
 
                     default:
@@ -135,14 +145,14 @@ public class HomeActivity extends AppCompatActivity {
                 }
 
 
-                courses.add(course);
+                generatedCourses.add(course);
             } while (courseCursor.moveToNext());
         }
 
         courseCursor.close();
 
-        for(Course course:courses) {
-            for(Term term:terms) {
+        for(Course course:generatedCourses) {
+            for(Term term:generatedTerms) {
                 if(course.courseTermID.get() == term.termID.get()) {
                     term.associatedCourses.add(course);
                     break;
@@ -185,7 +195,7 @@ public class HomeActivity extends AppCompatActivity {
 
 
                 switch (assessment.assessmentStatus.get()) {
-                    case "CO":
+                    case "Complete":
                         assessment.assessmentHomeColor.set(R.color.lightGreen);
                         break;
                         
@@ -194,20 +204,26 @@ public class HomeActivity extends AppCompatActivity {
                         break;
                 }
 
-                assessments.add(assessment);
+                generatedAssessments.add(assessment);
             } while (assessmentCursor.moveToNext());
         }
 
         assessmentCursor.close();
 
-        for(Assessment assessment:assessments) {
-            for(Course course:courses) {
+        for(Assessment assessment:generatedAssessments) {
+            for(Course course:generatedCourses) {
                 if(assessment.assessmentCourse.get() == course.courseID.get()) {
                     course.associatedAssessments.add(assessment);
                     break;
                 }
             }
         }
+
+        terms = generatedTerms;
+        courses = generatedCourses;
+        assessments = generatedAssessments;
+
+        database.close();
 
     }
 
@@ -216,7 +232,7 @@ public class HomeActivity extends AppCompatActivity {
         termRoot.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         termRoot.setOrientation(LinearLayout.VERTICAL);
 
-        for(Term term:this.terms) {
+        for(final Term term:this.terms) {
             LinearLayout termRowRoot = new LinearLayout(this); // root view for individual term and children
             termRowRoot.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
             termRowRoot.setOrientation(LinearLayout.VERTICAL);
@@ -227,12 +243,11 @@ public class HomeActivity extends AppCompatActivity {
             termChildren.setOrientation(LinearLayout.VERTICAL);
             termChildren.setVisibility(View.GONE);
 
-            LinearLayout termRow = new LinearLayout(this); // view for items within term row
+            LinearLayout termRow = new LinearLayout(this); // view holding all items within term row
             termRow.setOrientation(LinearLayout.HORIZONTAL);
             LinearLayout.LayoutParams termRowLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             termRowLP.setMargins(0, 0, 0, convertToDP(1));
             termRow.setLayoutParams(termRowLP);
-            termRow.setPadding(convertToDP(16), convertToDP(8), 0, convertToDP(8));
             termRow.setBackgroundColor(getResources().getColor(R.color.blue));
 
             LinearLayout.LayoutParams wrapContentLP2 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -246,6 +261,19 @@ public class HomeActivity extends AppCompatActivity {
             LinearLayout.LayoutParams buttonLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             buttonLP.weight = 1;
 
+            LinearLayout termRowClickableContent = new LinearLayout(this); // view holding clickable content leading to details activity
+            termRowClickableContent.setOrientation(LinearLayout.HORIZONTAL);
+            termRowClickableContent.setLayoutParams(wrapContentLP2);
+            termRowClickableContent.setPadding(convertToDP(16), convertToDP(8), 0, convertToDP(8));
+            termRowClickableContent.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(getApplicationContext(), TermDetailsActivity.class);
+                    intent.putExtra("TERM_ID", term.termID.get());
+                    startActivity(intent);
+                }
+            });
+
             TextView termNumber = new TextView(this);
             termNumber.setLayoutParams(wrapContentLP2);
             termNumber.setTextColor(getResources().getColor(R.color.white));
@@ -253,7 +281,7 @@ public class HomeActivity extends AppCompatActivity {
             termNumber.setText(termNumberText);
             termNumber.setGravity(Gravity.START);
             termNumber.setTextSize(18);
-            termRow.addView(termNumber);
+            termRowClickableContent.addView(termNumber);
 
             TextView termStart = new TextView(this);
             termStart.setLayoutParams(wrapContentLP1);
@@ -261,7 +289,7 @@ public class HomeActivity extends AppCompatActivity {
             termStart.setGravity(Gravity.END);
             termStart.setText(term.convertStartToString());
             termStart.setTextSize(18);
-            termRow.addView(termStart);
+            termRowClickableContent.addView(termStart);
 
             TextView termEnd = new TextView(this);
             termEnd.setLayoutParams(wrapContentLP1);
@@ -269,7 +297,12 @@ public class HomeActivity extends AppCompatActivity {
             termEnd.setGravity(Gravity.END);
             termEnd.setText(term.convertEndToString());
             termEnd.setTextSize(18);
-            termRow.addView(termEnd);
+            termRowClickableContent.addView(termEnd);
+
+            LinearLayout termRowExpandHolder = new LinearLayout(this); // view holding clickable content leading to details activity
+            termRowExpandHolder.setOrientation(LinearLayout.HORIZONTAL);
+            termRowExpandHolder.setLayoutParams(wrapContentLP1);
+            termRowExpandHolder.setPadding( 0, convertToDP(8), 0, convertToDP(8));
 
             final Button termExpand = new Button(this);
             termExpand.setLayoutParams(buttonLP);
@@ -289,7 +322,11 @@ public class HomeActivity extends AppCompatActivity {
                     }
                 }
             });
-            termRow.addView(termExpand);
+            termRowExpandHolder.addView(termExpand);
+
+            termRow.addView(termRowClickableContent);
+
+            termRow.addView(termRowExpandHolder);
 
             termRowRoot.addView(termRow);
 
@@ -314,7 +351,7 @@ public class HomeActivity extends AppCompatActivity {
             termChildren.addView(courseDescriptorRow);
 
             // Add courses underneath term row created above
-            for(Course course:term.associatedCourses) { // Create course rows
+            for(final Course course:term.associatedCourses) { // Create course rows
                 LinearLayout courseRowRoot = new LinearLayout(this); // root view for course row and associated assessments
                 courseRowRoot.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                 courseRowRoot.setOrientation(LinearLayout.VERTICAL);
@@ -330,7 +367,6 @@ public class HomeActivity extends AppCompatActivity {
                 LinearLayout.LayoutParams courseRowLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                 courseRowLP.setMargins(0, 0, 0, convertToDP(1));
                 courseRow.setLayoutParams(courseRowLP);
-                courseRow.setPadding(convertToDP(16), convertToDP(8), 0, convertToDP(8));
                 courseRow.setBackgroundColor(getResources().getColor(course.courseHomeColor.get()));
 
                 int textColor;
@@ -343,13 +379,30 @@ public class HomeActivity extends AppCompatActivity {
                     textColor = getResources().getColor(R.color.white);
                 }
 
+                LinearLayout courseRowClickableContent = new LinearLayout(this);
+                courseRowClickableContent.setOrientation(LinearLayout.HORIZONTAL);
+                courseRowClickableContent.setLayoutParams(wrapContentLP2);
+                courseRowClickableContent.setPadding(convertToDP(16), convertToDP(8), 0, convertToDP(8));
+                courseRowClickableContent.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(getApplicationContext(), CourseDetailsActivity.class);
+                        intent.putExtra("COURSE_ID", course.courseID.get());
+                        startActivity(intent);
+                    }
+                });
+
                 TextView courseTitle = new TextView(this);
                 courseTitle.setLayoutParams(wrapContentLP2);
                 courseTitle.setTextColor(textColor);
-                courseTitle.setText(course.courseTitle.get());
+                String courseTitleText = course.courseTitle.get();
+                if(courseTitleText.length() > 12) {
+                    courseTitleText = courseTitleText.substring(0, 12) + "...";
+                }
+                courseTitle.setText(courseTitleText);
                 courseTitle.setGravity(Gravity.START);
                 courseTitle.setTextSize(18);
-                courseRow.addView(courseTitle);
+                courseRowClickableContent.addView(courseTitle);
 
                 TextView courseStart = new TextView(this);
                 courseStart.setLayoutParams(wrapContentLP1);
@@ -357,7 +410,7 @@ public class HomeActivity extends AppCompatActivity {
                 courseStart.setGravity(Gravity.END);
                 courseStart.setText(course.convertStartToString());
                 courseStart.setTextSize(18);
-                courseRow.addView(courseStart);
+                courseRowClickableContent.addView(courseStart);
 
                 TextView courseEnd = new TextView(this);
                 courseEnd.setLayoutParams(wrapContentLP1);
@@ -365,7 +418,14 @@ public class HomeActivity extends AppCompatActivity {
                 courseEnd.setGravity(Gravity.END);
                 courseEnd.setText(course.convertEndToString());
                 courseEnd.setTextSize(18);
-                courseRow.addView(courseEnd);
+                courseRowClickableContent.addView(courseEnd);
+
+                courseRow.addView(courseRowClickableContent);
+
+                LinearLayout courseRowExpandHolder = new LinearLayout(this); // view holding clickable content leading to details activity
+                courseRowExpandHolder.setOrientation(LinearLayout.HORIZONTAL);
+                courseRowExpandHolder.setLayoutParams(wrapContentLP1);
+                courseRowExpandHolder.setPadding( 0, convertToDP(8), 0, convertToDP(8));
 
                 final Button courseExpand = new Button(this);
                 courseExpand.setLayoutParams(buttonLP);
@@ -385,7 +445,10 @@ public class HomeActivity extends AppCompatActivity {
                         }
                     }
                 });
-                courseRow.addView(courseExpand);
+
+                courseRowExpandHolder.addView(courseExpand);
+
+                courseRow.addView(courseRowExpandHolder);
 
                 courseRowRoot.addView(courseRow);
 
@@ -410,7 +473,7 @@ public class HomeActivity extends AppCompatActivity {
                 courseChildren.addView(assessmentDescriptorRow); // Add assessment descriptor row to top of assessment holder
 
                 // Add assessments underneath each course created above
-                for(Assessment assessment:course.associatedAssessments) { // Create assessment rows
+                for(final Assessment assessment:course.associatedAssessments) { // Create assessment rows
                     LinearLayout assessmentRowRoot = new LinearLayout(this); // root view for assessment row and associated assessments
                     assessmentRowRoot.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                     assessmentRowRoot.setOrientation(LinearLayout.VERTICAL);
@@ -420,7 +483,6 @@ public class HomeActivity extends AppCompatActivity {
                     LinearLayout.LayoutParams assessmentRowLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                     assessmentRowLP.setMargins(0, 0, 0, convertToDP(1));
                     assessmentRow.setLayoutParams(assessmentRowLP);
-                    assessmentRow.setPadding(convertToDP(16), convertToDP(8), 0, convertToDP(8));
                     assessmentRow.setBackgroundColor(getResources().getColor(assessment.assessmentHomeColor.get()));
 
                     int assessmentTextColor;
@@ -431,13 +493,22 @@ public class HomeActivity extends AppCompatActivity {
                         assessmentTextColor = getResources().getColor(R.color.textDark);
                     }
 
+                    final LinearLayout assessmentClickableContent  = new LinearLayout(this);
+                    assessmentClickableContent.setLayoutParams(assessmentRowLP);
+                    assessmentClickableContent.setOrientation(LinearLayout.HORIZONTAL);
+                    assessmentClickableContent.setPadding(convertToDP(16), convertToDP(20), convertToDP(16), convertToDP(20));
+
                     TextView assessmentTitle = new TextView(this);
                     assessmentTitle.setLayoutParams(wrapContentLP2);
                     assessmentTitle.setTextColor(assessmentTextColor);
-                    assessmentTitle.setText(assessment.assessmentTitle.get());
+                    String assessmentTitleText = assessment.assessmentTitle.get();
+                    if(assessmentTitleText.length() > 12) {
+                        assessmentTitleText = assessmentTitleText.substring(0, 12) + "...";
+                    }
+                    assessmentTitle.setText(assessmentTitleText);
                     assessmentTitle.setGravity(Gravity.START);
                     assessmentTitle.setTextSize(18);
-                    assessmentRow.addView(assessmentTitle);
+                    assessmentClickableContent.addView(assessmentTitle);
 
                     TextView assessmentType = new TextView(this);
                     assessmentType.setLayoutParams(wrapContentLP1);
@@ -445,7 +516,7 @@ public class HomeActivity extends AppCompatActivity {
                     assessmentType.setGravity(Gravity.END);
                     assessmentType.setText(assessment.assessmentType.get());
                     assessmentType.setTextSize(18);
-                    assessmentRow.addView(assessmentType);
+                    assessmentClickableContent.addView(assessmentType);
 
                     TextView assessmentDue = new TextView(this);
                     assessmentDue.setLayoutParams(wrapContentLP1);
@@ -453,16 +524,18 @@ public class HomeActivity extends AppCompatActivity {
                     assessmentDue.setGravity(Gravity.END);
                     assessmentDue.setText(assessment.convertDueToString());
                     assessmentDue.setTextSize(18);
-                    assessmentRow.addView(assessmentDue);
+                    assessmentClickableContent.addView(assessmentDue);
 
-                    Button assessmentExpand = new Button(this);
-                    assessmentExpand.setLayoutParams(buttonLP);
-                    assessmentExpand.setGravity(Gravity.CENTER);
-                    assessmentExpand.setTextColor(assessmentTextColor);
-                    assessmentExpand.setBackgroundColor(Color.TRANSPARENT);
-                    assessmentExpand.setText("");
-                    assessmentExpand.setTextSize(24);
-                    assessmentRow.addView(assessmentExpand);
+                    assessmentRow.addView(assessmentClickableContent);
+
+                    assessmentClickableContent.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent intent = new Intent(getApplicationContext(), AssessmentDetailsActivity.class);
+                            intent.putExtra("ASSESSMENT_ID", assessment.assessmentID.get());
+                            startActivity(intent);
+                        }
+                    });
 
                     assessmentRowRoot.addView(assessmentRow); // Adds assessment information row to main assessment root view
 
@@ -476,6 +549,14 @@ public class HomeActivity extends AppCompatActivity {
                 addAssessmentRow.setLayoutParams(addAssessmentRowLP);
                 addAssessmentRow.setPadding(convertToDP(16), convertToDP(16), convertToDP(16), convertToDP(16));
                 addAssessmentRow.setBackgroundColor(getResources().getColor(R.color.tan));
+                addAssessmentRow.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(getApplicationContext(), AddAssessmentActivity.class);
+                        intent.putExtra("COURSE_ID", course.courseID.get());
+                        startActivity(intent);
+                    }
+                });
 
                 TextView addAssessmentRowText = new TextView(this);
                 addAssessmentRowText.setLayoutParams(wrapContentLP1);
@@ -502,6 +583,14 @@ public class HomeActivity extends AppCompatActivity {
             addCourseRow.setLayoutParams(addCourseRowLP);
             addCourseRow.setPadding(convertToDP(16), convertToDP(16), convertToDP(16), convertToDP(16));
             addCourseRow.setBackgroundColor(getResources().getColor(R.color.tan));
+            addCourseRow.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(getApplicationContext(), AddCourseActivity.class);
+                    intent.putExtra("TERM_ID", term.termID.get());
+                    startActivity(intent);
+                }
+            });
 
             TextView addCourseRowText = new TextView(this);
             addCourseRowText.setLayoutParams(wrapContentLP1);
@@ -551,5 +640,24 @@ public class HomeActivity extends AppCompatActivity {
         termRoot.addView(addTermRow); // Attach add term row to bottom of term list
 
         return termRoot; // Return root view containing all rows of terms, courses, and assessments
+    }
+
+    public void onResume() {
+        super.onResume();
+        generateTermsFromDB();
+        rootView.removeViewAt(1);
+        rootView.addView(generateRows());
+    }
+
+    private void createRemindersNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Reminders";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("Reminders", name, importance);
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 }

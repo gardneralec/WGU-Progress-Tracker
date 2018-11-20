@@ -17,6 +17,7 @@ public class DBSQLiteHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(DBContract.TermTable.CREATE_TABLE);
         sqLiteDatabase.execSQL(DBContract.CourseTable.CREATE_TABLE);
         sqLiteDatabase.execSQL(DBContract.AssessmentTable.CREATE_TABLE);
+        sqLiteDatabase.execSQL(DBContract.CMTable.CREATE_TABLE);
         sqLiteDatabase.execSQL(DBContract.TermTable.SAMPLE_TERM_1);
         sqLiteDatabase.execSQL(DBContract.TermTable.SAMPLE_TERM_2);
         sqLiteDatabase.execSQL(DBContract.TermTable.SAMPLE_COURSE_1);
@@ -27,6 +28,10 @@ public class DBSQLiteHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(DBContract.TermTable.SAMPLE_ASSESSMENT_2);
         sqLiteDatabase.execSQL(DBContract.TermTable.SAMPLE_ASSESSMENT_3);
         sqLiteDatabase.execSQL(DBContract.TermTable.SAMPLE_ASSESSMENT_4);
+        sqLiteDatabase.execSQL(DBContract.TermTable.SAMPLE_CM_1);
+        sqLiteDatabase.execSQL(DBContract.TermTable.SAMPLE_CM_2);
+        sqLiteDatabase.execSQL(DBContract.TermTable.SAMPLE_CM_3);
+        sqLiteDatabase.execSQL(DBContract.TermTable.SAMPLE_CM_4);
 
     }
 

@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".AddTermActivity">
+    tools:context=".AddCMActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="@string/addTerm"
+            android:text="@string/addCM"
             android:textSize="36sp"
             android:textColor="@color/textDark"
             android:layout_marginTop="50dp"
@@ -39,57 +39,15 @@
                 android:paddingRight="8dp">
 
                 <EditText
-                    android:id="@+id/addTermTitle"
+                    android:id="@+id/addCMName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:clickable="true"
-                    android:focusable="false"
+                    android:focusable="true"
                     android:inputType="none"
                     android:textColor="@color/textDark"
                     android:textColorHint="@color/textGray"
-                    android:hint="@string/title"
-                    android:textSize="24sp"
-                    android:onClick="termNumberPickerShow"/>
-
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_weight="1"
-                android:paddingLeft="8dp">
-
-                <Spinner
-                    android:id="@+id/addTermStatus"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"/>
-
-
-            </LinearLayout>
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="36dp">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_weight="1"
-                android:paddingRight="8dp">
-
-                <EditText
-                    android:id="@+id/addTermStart"
-                    android:clickable="true"
-                    android:focusable="false"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/textDark"
-                    android:textColorHint="@color/textGray"
-                    android:hint="@string/start"
+                    android:hint="@string/name"
                     android:textSize="24sp"/>
 
             </LinearLayout>
@@ -101,15 +59,16 @@
                 android:paddingLeft="8dp">
 
                 <EditText
-                    android:id="@+id/addTermEnd"
-                    android:clickable="true"
-                    android:focusable="false"
+                    android:id="@+id/addCMPhone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:inputType="phone"
                     android:textColor="@color/textDark"
                     android:textColorHint="@color/textGray"
-                    android:hint="@string/end"
-                    android:textSize="24sp"/>
+                    android:hint="@string/phone"
+                    android:textSize="24sp" />
 
 
             </LinearLayout>
@@ -121,20 +80,40 @@
             android:layout_marginBottom="36dp">
 
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_weight="1"
-                android:paddingLeft="8dp">
+                android:orientation="vertical">
+
+                <EditText
+                    android:id="@+id/addCMEmail"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/textDark"
+                    android:textColorHint="@color/textGray"
+                    android:hint="@string/email"
+                    android:textSize="24sp"/>
+
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="36dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
                 <Button
-                    android:id="@+id/addTermSubmit"
+                    android:id="@+id/addCMSubmit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/submit"
-                    android:textSize="24sp"
-                    />
-
+                    android:textSize="24sp" />
 
             </LinearLayout>
 

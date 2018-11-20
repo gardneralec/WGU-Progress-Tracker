@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".AddTermActivity">
+    tools:context=".AddAssessmentActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,12 +15,13 @@
         android:paddingLeft="16dp"
         android:paddingRight="16dp">
 
-        <TextView
+        <EditText
+            android:id="@+id/addAssessmentTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="@string/addTerm"
             android:textSize="36sp"
+            android:hint="@string/title"
             android:textColor="@color/textDark"
             android:layout_marginTop="50dp"
             android:layout_marginBottom="36dp"/>
@@ -38,18 +39,13 @@
                 android:layout_weight="1"
                 android:paddingRight="8dp">
 
-                <EditText
-                    android:id="@+id/addTermTitle"
+                <Spinner
+                    android:id="@+id/addAssessmentCourseTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
                     android:clickable="true"
-                    android:focusable="false"
-                    android:inputType="none"
-                    android:textColor="@color/textDark"
-                    android:textColorHint="@color/textGray"
-                    android:hint="@string/title"
-                    android:textSize="24sp"
-                    android:onClick="termNumberPickerShow"/>
+                    android:focusable="true" />
 
             </LinearLayout>
             <LinearLayout
@@ -60,10 +56,12 @@
                 android:paddingLeft="8dp">
 
                 <Spinner
-                    android:id="@+id/addTermStatus"
+                    android:id="@+id/addAssessmentStatus"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"/>
+                    android:layout_gravity="bottom"
+                    android:clickable="true"
+                    android:focusable="true"/>
 
 
             </LinearLayout>
@@ -82,7 +80,7 @@
                 android:paddingRight="8dp">
 
                 <EditText
-                    android:id="@+id/addTermStart"
+                    android:id="@+id/addAssessmentGoal"
                     android:clickable="true"
                     android:focusable="false"
                     android:layout_width="match_parent"
@@ -100,16 +98,13 @@
                 android:layout_weight="1"
                 android:paddingLeft="8dp">
 
-                <EditText
-                    android:id="@+id/addTermEnd"
-                    android:clickable="true"
-                    android:focusable="false"
+                <Spinner
+                    android:id="@+id/addAssessmentType"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/textDark"
-                    android:textColorHint="@color/textGray"
-                    android:hint="@string/end"
-                    android:textSize="24sp"/>
+                    android:layout_gravity="bottom"
+                    android:clickable="true"
+                    android:focusable="true"/>
 
 
             </LinearLayout>
@@ -128,7 +123,7 @@
                 android:paddingLeft="8dp">
 
                 <Button
-                    android:id="@+id/addTermSubmit"
+                    android:id="@+id/addAssessmentSubmit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/submit"

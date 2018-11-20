@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".AddTermActivity">
+    tools:context=".TermDetailsActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="@string/addTerm"
+            android:text="@string/termDetails"
             android:textSize="36sp"
             android:textColor="@color/textDark"
             android:layout_marginTop="50dp"
@@ -39,7 +39,7 @@
                 android:paddingRight="8dp">
 
                 <EditText
-                    android:id="@+id/addTermTitle"
+                    android:id="@+id/termDetailsTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:clickable="true"
@@ -60,7 +60,7 @@
                 android:paddingLeft="8dp">
 
                 <Spinner
-                    android:id="@+id/addTermStatus"
+                    android:id="@+id/termDetailsStatus"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"/>
@@ -82,7 +82,7 @@
                 android:paddingRight="8dp">
 
                 <EditText
-                    android:id="@+id/addTermStart"
+                    android:id="@+id/termDetailsStart"
                     android:clickable="true"
                     android:focusable="false"
                     android:layout_width="match_parent"
@@ -101,7 +101,7 @@
                 android:paddingLeft="8dp">
 
                 <EditText
-                    android:id="@+id/addTermEnd"
+                    android:id="@+id/termDetailsEnd"
                     android:clickable="true"
                     android:focusable="false"
                     android:layout_width="match_parent"
@@ -128,13 +128,29 @@
                 android:paddingLeft="8dp">
 
                 <Button
-                    android:id="@+id/addTermSubmit"
+                    android:id="@+id/termDetailsDelete"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/submit"
+                    android:text="@string/delete"
                     android:textSize="24sp"
                     />
 
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1"
+                android:paddingLeft="8dp">
+
+                <Button
+                    android:id="@+id/termDetailsSave"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/save"
+                    android:textSize="24sp"
+                    />
 
             </LinearLayout>
 

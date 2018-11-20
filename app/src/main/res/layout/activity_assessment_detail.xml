@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".AddTermActivity">
+    tools:context=".AssessmentDetailsActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,15 +15,15 @@
         android:paddingLeft="16dp"
         android:paddingRight="16dp">
 
-        <TextView
+        <EditText
+            android:id="@+id/assessmentTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="@string/addTerm"
             android:textSize="36sp"
             android:textColor="@color/textDark"
             android:layout_marginTop="50dp"
-            android:layout_marginBottom="36dp"/>
+            android:layout_marginBottom="36dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -38,18 +38,13 @@
                 android:layout_weight="1"
                 android:paddingRight="8dp">
 
-                <EditText
-                    android:id="@+id/addTermTitle"
+                <Spinner
+                    android:id="@+id/assessmentCourseTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
                     android:clickable="true"
-                    android:focusable="false"
-                    android:inputType="none"
-                    android:textColor="@color/textDark"
-                    android:textColorHint="@color/textGray"
-                    android:hint="@string/title"
-                    android:textSize="24sp"
-                    android:onClick="termNumberPickerShow"/>
+                    android:focusable="true"/>
 
             </LinearLayout>
             <LinearLayout
@@ -60,10 +55,12 @@
                 android:paddingLeft="8dp">
 
                 <Spinner
-                    android:id="@+id/addTermStatus"
+                    android:id="@+id/assessmentStatus"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"/>
+                    android:layout_gravity="bottom"
+                    android:clickable="true"
+                    android:focusable="true"/>
 
 
             </LinearLayout>
@@ -72,7 +69,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="36dp">
+            android:layout_marginBottom="18dp">
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -82,14 +79,15 @@
                 android:paddingRight="8dp">
 
                 <EditText
-                    android:id="@+id/addTermStart"
+                    android:id="@+id/assessmentGoal"
                     android:clickable="true"
-                    android:focusable="false"
+                    android:focusable="true"
+                    android:inputType="none"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="@color/textDark"
                     android:textColorHint="@color/textGray"
-                    android:hint="@string/start"
+                    android:hint="@string/goal"
                     android:textSize="24sp"/>
 
             </LinearLayout>
@@ -100,19 +98,30 @@
                 android:layout_weight="1"
                 android:paddingLeft="8dp">
 
-                <EditText
-                    android:id="@+id/addTermEnd"
-                    android:clickable="true"
-                    android:focusable="false"
+                <Spinner
+                    android:id="@+id/assessmentType"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/textDark"
-                    android:textColorHint="@color/textGray"
-                    android:hint="@string/end"
-                    android:textSize="24sp"/>
+                    android:layout_gravity="bottom"
+                    android:clickable="true"
+                    android:focusable="true"/>
 
 
             </LinearLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="36dp">
+
+            <Button
+                android:id="@+id/assessmentSetAlarm"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/setAlarmAssessment"
+                android:textSize="24sp"/>
+
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
@@ -128,10 +137,28 @@
                 android:paddingLeft="8dp">
 
                 <Button
-                    android:id="@+id/addTermSubmit"
+                    android:id="@+id/assessmentDelete"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/submit"
+                    android:text="@string/delete"
+                    android:textSize="24sp"
+                    />
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1"
+                android:paddingLeft="8dp">
+
+                <Button
+                    android:id="@+id/modifyAssessmentSubmit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/save"
                     android:textSize="24sp"
                     />
 
@@ -143,5 +170,5 @@
 
     </LinearLayout>
 
-</ScrollView>
+</android.support.constraint.ConstraintLayout>
 
